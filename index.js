@@ -1,3 +1,3 @@
-const vueBoxPwd = require('./src/vueBoxPwd.vue');
+import vueBoxPwd from './src/vueBoxPwd.vue';
 
 export default vueBoxPwd;

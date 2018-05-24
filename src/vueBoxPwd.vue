@@ -1,123 +1,210 @@
-<!--短信验证-->
+<!-- 方框输入密码 -->
 <template>
-  <div id="messageAuth" class="container">
-    <p class="titleTip">已发送短信验证码到</p>
-    <p class="phoneNumber">{{ data.phone | formatPhone }}</p>
-    <div class="form-row">
-      <!--短信验证码-->
-      <div class="smsDiv">
-        <sms-code-input
-          ref="smsCodeInput"
-          label="验证码："
-          :value="''"
-          @input="smsCodeInput"
-          :totalTime="60"
-          @btnClick="smsCodeBtnClick"
-          :maxlength="6"
-          placeholder="请输入验证码"
-          type="text">
-        </sms-code-input>
+  <div id="cellPwdInput" @touchstart.stop.prevent="$emit('update:viewKey', true)">
+    <div class="boxWrap" v-if="pwdShow">
+      <div v-for="item in pwdSize" :key="item" :style="autoStyle.boxStyle" class="box" :class="{ viewLeft: item !== 1 }">
+        <div v-if="pwd.length >= item" class="content">{{ pwd[item-1] || '' }}</div>
       </div>
     </div>
-    <!--提交按钮-->
-    <div class="dfButtonContainer">
-      <mt-button class="button" :class="{ disabled: !smsCode }" size="large" :disabled="!smsCode" @click.native="submit">提交</mt-button>
+    <div class="boxWrap" v-else>
+      <div v-for="item in pwdSize" :key="item" :style="autoStyle.boxStyle" class="box" :class="{ viewLeft: item !== 1 }">
+        <div v-if="pwd.length >= item" class="content viewPoint" :style="autoStyle.pointStyle"></div>
+      </div>
+    </div>
+    <div class="numbers" :class="{ view: viewKey }">
+      <table>
+        <tbody>
+          <tr class="noTop twoLine">
+            <td @touchstart.stop.prevent="editPwd(1)" @touchend.stop.prevent="activeNumber=null" :class="{ active: activeNumber===1 }">
+              <div>1</div>
+              <div class="letter" style="color: #FFF;">.</div>
+            </td>
+            <td @touchstart.stop.prevent="editPwd(2)" @touchend.stop.prevent="activeNumber=null" :class="{ active: activeNumber===2 }">
+              <div>2</div>
+              <div class="letter">ABC</div>
+            </td>
+            <td @touchstart.stop.prevent="editPwd(3)" @touchend.stop.prevent="activeNumber=null" :class="{ active: activeNumber===3 }">
+              <div>3</div>
+              <div class="letter">DEF</div>
+            </td>
+          </tr>
+          <tr class="twoLine">
+            <td @touchstart.stop.prevent="editPwd(4)" @touchend.stop.prevent="activeNumber=null" :class="{ active: activeNumber===4 }">
+              <div>4</div>
+              <div class="letter">GHI</div>
+            </td>
+            <td @touchstart.stop.prevent="editPwd(5)" @touchend.stop.prevent="activeNumber=null" :class="{ active: activeNumber===5 }">
+              <div>5</div>
+              <div class="letter">JKL</div>
+            </td>
+            <td @touchstart.stop.prevent="editPwd(6)" @touchend.stop.prevent="activeNumber=null" :class="{ active: activeNumber===6 }">
+              <div>6</div>
+              <div class="letter">MNO</div>
+            </td>
+          </tr>
+          <tr class="twoLine">
+            <td @touchstart.stop.prevent="editPwd(7)" @touchend.stop.prevent="activeNumber=null" :class="{ active: activeNumber===7 }">
+              <div>7</div>
+              <div class="letter">PQRS</div>
+            </td>
+            <td @touchstart.stop.prevent="editPwd(8)" @touchend.stop.prevent="activeNumber=null" :class="{ active: activeNumber===8 }">
+              <div>8</div>
+              <div class="letter">TUV</div>
+            </td>
+            <td @touchstart.stop.prevent="editPwd(9)" @touchend.stop.prevent="activeNumber=null" :class="{ active: activeNumber===9 }">
+              <div>9</div>
+              <div class="letter">WXYZ</div>
+            </td>
+          </tr>
+          <tr class="noBottom oneLine">
+            <td style="background-color: #ccc;"></td>
+            <td @touchstart.stop.prevent="editPwd(0)" @touchend.stop.prevent="activeNumber=null" :class="{ active: activeNumber===0 }">0</td>
+            <td style="background-color: #ccc;" @touchstart.stop.prevent="deletePwd"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAbFBMVEUAAABERERERERERERDQ0NDQ0NERERCQkJAQEBDQ0NDQ0NDQ0NAQEA+Pj5ERERDQ0NDQ0NBQUFCQkIxMTFERERCQkJDQ0M8PDxDQ0NDQ0NCQkJCQkJFRUVERERDQ0NDQ0NDQ0NDQ0NDQ0NERET+ZXR7AAAAI3RSTlMAk/z5VEjwQgxZ9MUaEunYz05LA+JePgefe2grItysNr26kEgSdQoAAAFeSURBVFjD7ZbbdoMgEEUnIEa8x1suxtqG///HLrDtJC4GLU95YL85es6SYZgBAoHAGzNOaps4E5T+Xqp9NHZ93qmdZFZ9Uam9xDZ9YvR1Ak6SXmlsb2r9okI9xafd4JzpeFfAJgerQfulw2UOngbth0nNHZC8+I+B0acjIJKlET5F9SRdBhcd4/NzSkqlWPSn1/at1QBD/PiS00mhQ8T0+miDq46wVXUO3DgsevS3GdyURsKKo3E4oZ4yWCrrBkA4nFBvNZBMP1/BguDqBy7IbRRGfwArgqOeMjAN4AIEQhmEo5A6T4PVXz78lwDNriQeHWdBUtsoXNvoX0j+pTw4TuND/X6BVM+HyTTLzeOczoAk8aLHPKUJZYANaQSkf2kokrOe/gNsiXRLK/JVEomm7NtUcSx4tnUcbLXnYMHRmp09RhsOd6/hioyx33hH5tTvgoEM8a4rTgOBQOCd+AY8rWK4DkW2DAAAAABJRU5ErkJggg==" alt="" style="width: .3rem; vertical-align: middle;"></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
-
 <script>
-  import { Indicator, Toast, MessageBox } from 'mint-ui';
-  import SmsCodeInput from '@/components/input/SmsCodeInput';
 
-  // console.log(global);
-
-  export default {
-    name: 'messageAuth',
-    components: {
-      SmsCodeInput,
+/* eslint-disabled */
+export default {
+  name: 'cellPwdInput',
+  props: {
+    pwdShow: { // 是否显示密码
+      type: Boolean,
+      default: false,
     },
-    props: {
-      data: {
-        type: Object,
-        default: {},
-      },
+    viewKey: { // 是否显示键盘
+      type: Boolean,
+      default: false,
     },
-    data() {
+    pwdSize: { // 密码位数
+      type: Number,
+      default: 6,
+    },
+  },
+  computed: {
+    autoStyle() { // 根据不同的密码size显示不同的密码宽度
+      const size = this.pwdSize < 6 ? 6 : this.pwdSize;
       return {
-        smsCode: '', // 短信验证码
+        boxStyle: {
+          width: `${ 3.2 / size }rem`,
+          height: `${ 3.2 / size }rem`,
+          fontSize: `${ 1.5 / size }rem`,
+        },
+        pointStyle: {
+          width: `${ 0.5 / size }rem`,
+          height: `${ 0.5 / size }rem`,
+        },
       };
     },
-    methods: {
-      smsCodeBtnClick() {
-        this.startCountDown();
-        this.$parent.nextClick(true);
-      },
-      startCountDown() {
-        this.$refs.smsCodeInput.startCountDown();
-      },
-      smsCodeInput(smsCode) {
-        this.smsCode = smsCode;
-      },
-      submit() { // 提交操作
-        const params = {
-          phone: this.data.phone,
-          serviceCode: this.data.serviceCode,
-          captcha: this.smsCode,
-          method: 'jxlAuth',
-        };
-        this.$parent.waitMomentVisible = true;
-        this.$refs.smsCodeInput.stopCount();
-        this.$store.dispatch('dfOnlyStatus', { url: 'promotion.do', params }).then((res) => {
-          // console.log(res);
-          this.$parent.waitMomentVisible = false;
-          if (!res) return;
-          if (res.status === 200) {
-            Toast('认证成功');
-            window.setTimeout(() => {
-              this.$router.back();
-            }, 1000);
-          } else if (res.status === 203) {
-            Toast(res.desc || '短信验证码错误');
-          }
-        });
-      },
+  },
+  data() {
+    return {
+      pwd: '', // 密码
+      activeNumber: null, // 激活的数字
+    };
+  },
+  methods: {
+    editPwd(number) {
+      this.activeNumber = number;
+      if ((this.pwd.length >= this.pwdSize) && (this.pwd.length > 0)) return;
+      this.pwd += number;
     },
-  };
-</script>
+    deletePwd() {
+      const ln = this.pwd.length;
+      this.pwd = ln ? this.pwd.substr(0, ln - 1) : '';
+    },
+  },
+  watch: {
+    pwdSize() {
+      this.pwd = '';
+    },
+    pwd(newValue) {
+      this.$emit('change', newValue);
+    },
+  },
+};
 
-<style lang="scss">
-  #messageAuth {
-    display: flex;
-    display: -webkit-flex;
-    flex-direction: column;
-    flex: 1;
-    overflow: scroll;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 0.6rem;
-    .titleTip{
-      text-align: center;
-      font-size: 0.13rem;
-      padding-top: 0.3rem;
-    }
-    .phoneNumber{
-      text-align: center;
-      font-size: 0.25rem;
-      padding: 0.08rem 0 0;
-    }
-    .form-row {
-      margin-top: 0.2rem;
-      background-color: #fff;
-    }
-    .hairline {
-      border-top: 1px solid rgb(231,231,231);
-      -webkit-transform: scaleY(0.5);
-      transform: scaleY(0.5);
-      margin-left: 0.15rem;
-    }
-    /deep/ .inviteman-input .input {
-      text-align: left;
-      margin-right: 0.15rem !important;
+</script>
+<style scoped lang="scss">
+#cellPwdInput{
+  width: 100%;
+  text-align: center;
+  .boxWrap{
+    width: 100%;
+    font-size: 0;
+    white-space: nowrap;
+    .box{
+      border: 1px solid #C1C1C1;
+      display: inline-block;
+      &.viewLeft{
+        border-left: none;
+      }
+      .content{
+        display: inline-block;
+        vertical-align: middle;
+        text-align: center;
+        &.viewPoint{
+          background-color: #222;
+          border-radius: 50%;
+        }
+      }
+      &:after{
+        content: '';
+        display: inline-block;
+        width: 0;
+        height: 100%;
+        vertical-align: middle;
+      }
     }
   }
+  .numbers{
+    width: 100%;
+    height: 2.3rem;
+    background-color: #ddd;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    z-index: 100;
+    transition: all .2s;
+    transform: translate3d(0, 2.4rem, 0);
+    &.view{
+      transform: translate3d(0, 0, 0);
+    }
+    table{
+      width: 100%;
+      height: 100%;
+      border-collapse: collapse;
+      td{
+        vertical-align: middle;
+        border: 1px solid #C1C1C1;
+        background-color: #fff;
+        font-size: .27rem;
+        width: 33.333%;
+        .letter{
+          font-size: .12rem;
+          letter-spacing: 1px;
+        }
+        &.active{
+          background-color: #ddd;
+        }
+      }
+      .noTop td{
+        border-top: none;
+      }
+      .noBottom td{
+        border-bottom: none;
+      }
+      .twoLine td{
+        height: 25.5%;
+      }
+      .oneLine td{
+        height: 24%;
+      }
+    }
+  }
+}
 </style>
