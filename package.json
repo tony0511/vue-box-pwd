@@ -1,0 +1,26 @@
+{
+  "name": "vue-box-pwd",
+  "version": "1.0.0",
+  "description": "box password",
+  "main": "index.js",
+  "author": "tony0511 <zhuimengzhe91@163.com>",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "homepage": "https://github.com/tony0511/vue-box-pwd",
+  "bugs": "https://github.com/tony0511/vue-box-pwd/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tony0511/vue-box-pwd"
+  },
+  "keywords": [
+    "password",
+    "box-password",
+    "pwd",
+    "box-pwd",
+    "vue-password",
+    "vue-pwd",
+    "vue"
+  ],
+  "license": "MIT"
+}
