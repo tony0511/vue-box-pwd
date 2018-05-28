@@ -117,6 +117,9 @@ export default {
       const ln = this.pwd.length;
       this.pwd = ln ? this.pwd.substr(0, ln - 1) : '';
     },
+    reset() {
+      this.pwd = '';
+    },
   },
   watch: {
     pwdSize() {
